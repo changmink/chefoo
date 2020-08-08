@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"time"
 
+	"github.com/changmink/shafoo/config"
 	_ "github.com/mattn/go-sqlite3"
 )
 
@@ -15,7 +16,7 @@ type UserForm struct {
 }
 
 func AddUser(user UserForm) int64 {
-	db, err := sql.Open("sqlite3", "./shafoo.db")
+	db, err := sql.Open(config.C.DBType, config.C.DBPath)
 	checkErr(err)
 
 	stmt, err := db.Prepare("INSERT INTO user(name, email, auth, create_date, edit_date) values(?,?,?,?,?)")

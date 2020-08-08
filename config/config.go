@@ -2,26 +2,21 @@ package config
 
 import (
 	"encoding/json"
-	"fmt"
 	"io/ioutil"
 )
 
 type Config struct {
-	Port string `json:"port"`
+	Port   string `json:"port"`
+	DBType string `json:"dbType"`
+	DBPath string `json:"dbPath"`
 }
 
-var config Config
+var C Config
 
 func LoadFile(filename string) {
 	file, err := ioutil.ReadFile("config.json")
 	if err != nil {
 		panic(err)
 	}
-	json.Unmarshal([]byte(file), &config)
-
-	fmt.Println(config.Port)
-}
-
-func GetHTTPPort() string {
-	return config.Port
+	json.Unmarshal([]byte(file), &C)
 }

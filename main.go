@@ -34,5 +34,5 @@ func main() {
 		api.EditProfile(profile)
 	}
 
-	engine.Run(":" + config.GetHTTPPort())
+	engine.Run(":" + config.C.Port)
 }
