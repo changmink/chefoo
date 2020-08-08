@@ -2,11 +2,14 @@ package main
 
 import (
 	"github.com/changmink/shafoo/api"
+	"github.com/changmink/shafoo/config"
 	"github.com/gin-gonic/gin"
 )
 
 func main() {
+	config.LoadFile("./config.json")
 	engine := gin.Default()
+
 	v1 := engine.Group("/api/v1")
 
 	auth := v1.Group("/auth")
@@ -31,5 +34,5 @@ func main() {
 		api.EditProfile(profile)
 	}
 
-	engine.Run(":1234")
+	engine.Run(":" + config.GetHTTPPort())
 }
