@@ -1,14 +1,23 @@
 package api
 
 import (
+	"github.com/changmink/shafoo/model"
 	"github.com/gin-gonic/gin"
 )
 
 func SignUp(g *gin.RouterGroup) {
 	g.POST("", func(c *gin.Context) {
-		c.JSON(200, gin.H{
-			"message": "This is test",
-		})
+		var user model.UserForm
+		if c.ShouldBindJSON(&user) == nil {
+			model.AddUser(user)
+			c.JSON(201, gin.H{
+				"message": "Created",
+			})
+		} else {
+			c.JSON(400, gin.H{
+				"message": "invalid user info",
+			})
+		}
 	})
 }
 
