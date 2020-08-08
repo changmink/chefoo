@@ -23,9 +23,22 @@ func SignUp(g *gin.RouterGroup) {
 
 func Login(g *gin.RouterGroup) {
 	g.PUT("", func(c *gin.Context) {
-		c.JSON(200, gin.H{
-			"message": "this is test",
-		})
+		var user model.LoginUser
+		if c.ShouldBindJSON(&user) == nil {
+			if model.ExistUser(user) {
+				c.JSON(200, gin.H{
+					"message": "Login Success",
+				})
+			} else {
+				c.JSON(404, gin.H{
+					"message": "Not Found",
+				})
+			}
+		} else {
+			c.JSON(400, gin.H{
+				"message": "invalid user info",
+			})
+		}
 	})
 }
 
