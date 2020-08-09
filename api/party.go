@@ -1,15 +1,23 @@
 package api
 
 import (
+	"strconv"
+
 	"github.com/changmink/shafoo/model"
 	"github.com/gin-gonic/gin"
 )
 
 func SearchParties(g *gin.RouterGroup) {
 	g.GET("", func(c *gin.Context) {
-		c.JSON(200, gin.H{
-			"message": "This is test",
-		})
+		latitude := c.Query("latitude")
+		longitude := c.Query("longitude")
+		distence := c.Query("distence")
+		dist, err := strconv.ParseFloat(distence, 4)
+		if err != nil {
+			panic(err)
+		}
+		parties := model.SearchParties(latitude, longitude, dist)
+		c.JSON(200, parties)
 	})
 }
 

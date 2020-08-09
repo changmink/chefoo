@@ -3,6 +3,8 @@ package model
 import (
 	"database/sql"
 	"fmt"
+	"math"
+	"strconv"
 	"time"
 
 	"github.com/changmink/shafoo/config"
@@ -14,6 +16,16 @@ type PartyForm struct {
 	Latitude    string `json:"latitude"`
 	Longitude   string `json:"longitude"`
 	TotalPeople int    `json:"totalPeople"`
+}
+
+type PartyInfo struct {
+	Id            int    `json:"id"`
+	Name          string `json:"name"`
+	MeetTime      string `json:"meetTime"`
+	Latitude      string `json:"latitude"`
+	Longitude     string `json:"longitude"`
+	TotalPeople   int    `json:"totalPeople"`
+	CurrentPeople int    `json:"currentPeople"`
 }
 
 func CreateParty(party PartyForm) int64 {
@@ -34,4 +46,59 @@ func CreateParty(party PartyForm) int64 {
 	db.Close()
 
 	return id
+}
+
+func SearchParties(latitude string, longitude string, dist float64) []PartyInfo {
+	db, err := sql.Open(config.C.DBType, config.C.DBPath)
+	checkErr(err)
+
+	rows, err := db.Query("SELECT id, name, meet_time, latitude, longitude, total_people, current_people FROM party")
+
+	parties := []PartyInfo{}
+	for rows.Next() {
+		var party PartyInfo
+		err := rows.Scan(&party.Id, &party.Name, &party.MeetTime, &party.Latitude, &party.Longitude, &party.TotalPeople, &party.CurrentPeople)
+		checkErr(err)
+		if calDistence(party.Latitude, party.Longitude, latitude, longitude) <= dist {
+			parties = append(parties, party)
+		}
+	}
+
+	return parties
+}
+
+func calDistence(latitude1 string, longitude1 string, latitude2 string, longitude2 string) float64 {
+	lat1, err := strconv.ParseFloat(latitude1, 4)
+	if err != nil {
+		panic(err)
+	}
+	lon1, err := strconv.ParseFloat(longitude1, 4)
+	if err != nil {
+		panic(err)
+	}
+	lat2, err := strconv.ParseFloat(latitude2, 4)
+	if err != nil {
+		panic(err)
+	}
+	lon2, err := strconv.ParseFloat(longitude2, 4)
+	if err != nil {
+		panic(err)
+	}
+
+	theta := lon1 - lon2
+	dist := math.Sin(degreeToRadian(lat1))*math.Sin(degreeToRadian(lat2)) + math.Cos(degreeToRadian(lat1))*math.Cos(degreeToRadian(lat2))*math.Cos(degreeToRadian(theta))
+	dist = math.Acos(dist)
+	dist = radianToDegree(dist)
+	dist = dist * 60 * 1.515
+
+	dist = dist * 1.609344
+
+	return dist
+}
+func degreeToRadian(degree float64) float64 {
+	return degree * 3.14 / 180.0
+}
+
+func radianToDegree(radian float64) float64 {
+	return radian / 3.14 * 180.0
 }
