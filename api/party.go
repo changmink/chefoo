@@ -1,6 +1,7 @@
 package api
 
 import (
+	"github.com/changmink/shafoo/model"
 	"github.com/gin-gonic/gin"
 )
 
@@ -14,9 +15,18 @@ func SearchParties(g *gin.RouterGroup) {
 
 func CreateParty(g *gin.RouterGroup) {
 	g.POST("", func(c *gin.Context) {
-		c.JSON(200, gin.H{
-			"message": "This is test",
-		})
+		var party model.PartyForm
+		if c.ShouldBindJSON(&party) == nil {
+			id := model.CreateParty(party)
+			c.JSON(201, gin.H{
+				"message": "Party is created",
+				"id":      id,
+			})
+		} else {
+			c.JSON(400, gin.H{
+				"message": "Invalid party form",
+			})
+		}
 	})
 }
 

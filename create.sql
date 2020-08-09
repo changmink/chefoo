@@ -10,6 +10,7 @@ CREATE TABLE `profile` (
 drop table if EXISTS `party`;
 CREATE TABLE `party` (
     `id` INTEGER PRIMARY KEY AUTOINCREMENT,
+    `name` TEXT,
     `meet_time` DATE,
     `latitude` TEXT,
     `longitude` TEXT,
