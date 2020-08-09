@@ -2,6 +2,7 @@ package model
 
 import (
 	"database/sql"
+	"errors"
 	"fmt"
 	"math"
 	"strconv"
@@ -101,4 +102,33 @@ func degreeToRadian(degree float64) float64 {
 
 func radianToDegree(radian float64) float64 {
 	return radian / 3.14 * 180.0
+}
+
+func JoinPartyById(partyId string, userId string) error {
+	db, err := sql.Open("sqlite3", "./shafoo.db")
+	checkErr(err)
+
+	rows, err := db.Query("SELECT current_people, total_people FROM party WHERE id = " + partyId)
+	checkErr(err)
+
+	var currentPeople int
+	var totalPeople int
+	for rows.Next() {
+		rows.Scan(&currentPeople, &totalPeople)
+	}
+
+	if currentPeople+1 >= totalPeople {
+		return errors.New("over total People")
+	} else {
+		_, err := db.Query("UPDATE party SET current_people = " + strconv.FormatInt(int64(currentPeople+1), 10) + " WHERE id = " + partyId)
+		checkErr(err)
+
+		stmt, err := db.Prepare("INSERT INTO party_member(party_id, user_id) VALUES (?,?)")
+		checkErr(err)
+
+		_, err = stmt.Exec(partyId, userId)
+		checkErr(err)
+
+		return nil
+	}
 }

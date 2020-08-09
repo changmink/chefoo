@@ -48,9 +48,17 @@ func LeaveParty(g *gin.RouterGroup) {
 
 func JoinPartyById(g *gin.RouterGroup) {
 	g.PUT("/:id", func(c *gin.Context) {
-		c.JSON(200, gin.H{
-			"message": "This is test",
-		})
+		partyId := c.Param("id")
+		userId := c.Query("userId")
+		if model.JoinPartyById(partyId, userId) == nil {
+			c.JSON(200, gin.H{
+				"message": "Join Party",
+			})
+		} else {
+			c.JSON(400, gin.H{
+				"message": "Over total People",
+			})
+		}
 	})
 }
 
