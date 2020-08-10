@@ -39,9 +39,12 @@ func CreateParty(g *gin.RouterGroup) {
 }
 
 func LeaveParty(g *gin.RouterGroup) {
-	g.DELETE("", func(c *gin.Context) {
+	g.DELETE("/:id", func(c *gin.Context) {
+		partyId := c.Param("id")
+		userId := c.Query("userId")
+		model.LeaveParty(partyId, userId)
 		c.JSON(200, gin.H{
-			"message": "This is test",
+			"message": "leave a party",
 		})
 	})
 }
@@ -63,9 +66,12 @@ func JoinPartyById(g *gin.RouterGroup) {
 }
 
 func GetPartyById(g *gin.RouterGroup) {
-	g.Group("/:id", func(c *gin.Context) {
+	g.GET("/:id", func(c *gin.Context) {
+		id := c.Param("id")
+		party := model.GetPartyById(id)
 		c.JSON(200, gin.H{
-			"message": "This is test",
+			"message": "found!",
+			"party":   party,
 		})
 	})
 }

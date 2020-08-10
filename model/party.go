@@ -32,6 +32,7 @@ type PartyInfo struct {
 func CreateParty(party PartyForm) int64 {
 	db, err := sql.Open(config.C.DBType, config.C.DBPath)
 	checkErr(err)
+	defer db.Close()
 
 	stmt, err := db.Prepare("INSERT INTO party(name, meet_time, latitude, longitude, total_people, create_date, edit_date) values(?,?,?,?,?,?,?)")
 	checkErr(err)
@@ -52,6 +53,7 @@ func CreateParty(party PartyForm) int64 {
 func SearchParties(latitude string, longitude string, dist float64) []PartyInfo {
 	db, err := sql.Open(config.C.DBType, config.C.DBPath)
 	checkErr(err)
+	defer db.Close()
 
 	rows, err := db.Query("SELECT id, name, meet_time, latitude, longitude, total_people, current_people FROM party")
 
@@ -105,8 +107,9 @@ func radianToDegree(radian float64) float64 {
 }
 
 func JoinPartyById(partyId string, userId string) error {
-	db, err := sql.Open("sqlite3", "./shafoo.db")
+	db, err := sql.Open(config.C.DBType, config.C.DBPath)
 	checkErr(err)
+	defer db.Close()
 
 	rows, err := db.Query("SELECT current_people, total_people FROM party WHERE id = " + partyId)
 	checkErr(err)
@@ -131,4 +134,46 @@ func JoinPartyById(partyId string, userId string) error {
 
 		return nil
 	}
+}
+
+func LeaveParty(partyId string, userId string) {
+	db, err := sql.Open(config.C.DBType, config.C.DBPath)
+	checkErr(err)
+	defer db.Close()
+
+	rows, err := db.Query("SELECT current_people FROM party WHERE id = " + partyId)
+	checkErr(err)
+
+	var currentPeople int
+	for rows.Next() {
+		rows.Scan(&currentPeople)
+	}
+
+	if currentPeople <= 1 {
+		_, err = db.Query("DELETE FROM party WHERE id=" + partyId)
+		checkErr(err)
+	} else {
+		_, err = db.Query("UPDATE party SET current_people = " + strconv.FormatInt(int64(currentPeople-1), 10) + " WHERE id = " + partyId)
+		checkErr(err)
+	}
+
+	_, err = db.Query("DELETE FROM party_member WHERE user_id=" + userId)
+	checkErr(err)
+}
+
+func GetPartyById(id string) PartyInfo {
+	db, err := sql.Open(config.C.DBType, config.C.DBPath)
+	checkErr(err)
+	defer db.Close()
+
+	rows, err := db.Query("SELECT id, name, meet_time, latitude, longitude, current_people, total_people FROM party WHERE id = " + id)
+	checkErr(err)
+
+	var party PartyInfo
+	for rows.Next() {
+		err := rows.Scan(&party.Id, &party.Name, &party.MeetTime, &party.Latitude, &party.Longitude, &party.TotalPeople, &party.CurrentPeople)
+		checkErr(err)
+	}
+
+	return party
 }
