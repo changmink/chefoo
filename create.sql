@@ -1,6 +1,7 @@
 drop table if exists `profile`;
 CREATE TABLE `profile` (
     `user_id` INTEGER PRIMARY KEY,
+    `name` TEXT,
 	`image` TEXT,
     `score` INTEGER,
     `create_date` DATE,
@@ -23,7 +24,6 @@ CREATE TABLE `party` (
 DROP TABLE IF EXISTS `user`;
 CREATE TABLE `user` (
     `id` INTEGER PRIMARY KEY AUTOINCREMENT,
-    `name` TEXT,
     `email` TEXT UNIQUE,
     `auth`  TEXT,
     `create_date` DATE,

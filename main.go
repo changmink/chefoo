@@ -31,7 +31,7 @@ func main() {
 	profile := v1.Group("/profiles")
 	{
 		api.GetProfileById(profile)
-		api.EditProfile(profile)
+		api.EditProfileById(profile)
 	}
 
 	engine.Run(":" + config.C.Port)

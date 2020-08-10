@@ -10,7 +10,6 @@ import (
 )
 
 type UserForm struct {
-	Name  string
 	Email string
 	Auth  string
 }
@@ -23,10 +22,10 @@ func AddUser(user UserForm) int64 {
 	db, err := sql.Open(config.C.DBType, config.C.DBPath)
 	checkErr(err)
 
-	stmt, err := db.Prepare("INSERT INTO user(name, email, auth, create_date, edit_date) values(?,?,?,?,?)")
+	stmt, err := db.Prepare("INSERT INTO user(email, auth, create_date, edit_date) values(?,?,?,?,?)")
 	checkErr(err)
 
-	res, err := stmt.Exec(user.Name, user.Email, user.Auth, time.Now(), time.Now())
+	res, err := stmt.Exec(user.Email, user.Auth, time.Now(), time.Now())
 
 	id, err := res.LastInsertId()
 	checkErr(err)
